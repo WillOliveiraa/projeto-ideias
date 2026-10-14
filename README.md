@@ -1,159 +1,80 @@
-# Turborepo starter
+# Banco de Ideias
 
-This Turborepo starter is maintained by the Turborepo core team.
+**Capture ideias, processe com IA e reaproveite quantas vezes precisar.**
 
-## Using this example
+![Dashboard do Banco de Ideias com indicadores, atalhos e gráfico de atividade](docs/images/dashboard.png)
 
-Run the following command:
+O Banco de Ideias é uma aplicação web para registrar ideias, organizá-las por tipo e usar Inteligência Artificial para transformá-las em conteúdo pronto. Cada tipo de ideia carrega um prompt especializado, que orienta a geração de conteúdos como roteiros para redes sociais, roteiros virais, VSLs e resumos.
 
-```sh
-npx create-turbo@latest
+O usuário pode gerar diferentes resultados a partir da mesma ideia, pedir refinamentos e acompanhar o histórico de cada geração. Cada pessoa tem sua própria conta e acessa apenas os próprios dados.
+
+## Como funciona
+
+1. **Escolha um tipo de ideia:** crie uma categoria com um prompt próprio ou importe os tipos pré-definidos disponíveis para começar.
+2. **Capture a ideia:** registre o nome, a descrição e o objetivo, adicionando textos de apoio para enriquecer o contexto.
+3. **Processe com IA:** transforme a ideia em conteúdo usando o prompt do tipo escolhido.
+4. **Refine o resultado:** solicite ajustes e acompanhe as versões no histórico do processamento.
+5. **Acompanhe sua atividade:** consulte o dashboard para visualizar seus registros e acessar as ações mais comuns.
+
+## Módulos de negócio
+
+O produto é organizado em dois módulos: **Autenticação** e **Ideias**.
+
+### Autenticação
+
+Cuida do cadastro de contas e da verificação de credenciais no login. Garante que cada usuário acesse apenas os próprios dados. A manutenção da sessão fica a cargo da camada técnica da aplicação.
+
+O domínio está em [`modules/auth`](modules/auth). As regras de negócio estão descritas em [Autenticação](.specs/memory/modules/auth.md).
+
+### Ideias
+
+É o núcleo do produto e reúne quatro áreas relacionadas:
+
+| Área | O que faz |
+| --- | --- |
+| **Tipos de Ideia** | Organiza categorias com prompts especializados, incluindo uma biblioteca de tipos pré-definidos para iniciar o uso. |
+| **Ideias** | Registra a ideia, sua descrição, seu objetivo e recursos de contexto em texto. |
+| **Processamentos** | Gera conteúdo com IA e mantém o histórico dos refinamentos de cada resultado. |
+| **Dashboard** | Mostra contagens, atividade recente, últimas ideias atualizadas e atalhos para as ações comuns. |
+
+Cada processamento preserva uma cópia dos dados da ideia, dos recursos e do prompt utilizados na geração. Editar a ideia ou o tipo depois não altera os processamentos anteriores. A mesma ideia pode dar origem a vários processamentos independentes.
+
+O domínio está em [`modules/ideas`](modules/ideas). As regras de negócio estão descritas em [Ideias](.specs/memory/modules/ideas.md).
+
+## Integração com Inteligência Artificial
+
+A IA oferece geração e refinamento de texto, além da transcrição de voz para apoiar o preenchimento dos campos. Os resultados dos processamentos são apresentados em Markdown.
+
+Essa integração é uma camada de infraestrutura. O domínio consome um contrato abstrato, permitindo trocar o provedor de IA sem alterar as regras de negócio. A implementação atual utiliza a OpenAI.
+
+## Tecnologias e organização
+
+O projeto utiliza TypeScript em um monorepo com npm workspaces e Turborepo.
+
+- **Frontend:** Next.js, React e Tailwind CSS.
+- **Backend:** NestJS, Prisma e PostgreSQL.
+- **Autenticação:** JWT e bcrypt.
+- **Testes:** Jest.
+
+```text
+apps/
+  frontend/                 # Interface web
+  backend/                  # API e integrações
+modules/
+  auth/                     # Regras de negócio de autenticação
+  ideas/                    # Regras de negócio de ideias e processamentos
+packages/
+  shared/                   # Entidades, validações e contratos compartilhados
+  eslint-config/            # Configuração de lint
+  typescript-config/        # Configuração de TypeScript
+.specs/                     # Documentação e especificações do projeto
 ```
 
-## What's inside?
+Os módulos de negócio mantêm suas regras independentes de HTTP, do banco de dados e do provedor de IA. As aplicações conectam essas regras à interface e às integrações necessárias.
 
-This Turborepo includes the following packages/apps:
+## Documentação
 
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-npm dlx turbo build
-npm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-npm exec turbo build --filter=docs
-npm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-npm exec turbo dev
-npm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-npm exec turbo dev --filter=web
-npm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-npm exec turbo login
-npm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-npm exec turbo link
-npm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+- [Visão do produto](.specs/memory/produto.md)
+- [Visão geral dos módulos](.specs/memory/modulos.md)
+- [Contexto técnico](.specs/memory/contexto-tecnico.md)
+- [Estrutura do projeto](.specs/memory/estrutura.md)
